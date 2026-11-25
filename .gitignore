@@ -21,3 +21,6 @@ venv/
 # Benchmark evaluator assets - never publish
 benchmark/tasks/*/hidden_tests/
 benchmark/tasks/*/reference/
+
+# Generated benchmark execution workspaces
+results/workspaces/
