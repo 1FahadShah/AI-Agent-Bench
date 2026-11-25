@@ -1,3 +1,5 @@
+"""Controlled command execution within benchmark workspaces."""
+
 import subprocess
 import time
 from dataclasses import dataclass
@@ -75,7 +77,6 @@ class CommandRunner:
             return output, False
 
         truncated_output = output[: self.max_output_chars]
-
         truncated_output += "\n\n[OUTPUT TRUNCATED: maximum output size reached]"
 
         return truncated_output, True
@@ -84,8 +85,14 @@ class CommandRunner:
         self,
         command: list[str],
         working_directory: Path | None = None,
+        env: dict[str, str] | None = None,
     ) -> ExecutionResult:
-        """Execute an allowlisted command without invoking a shell."""
+        """Execute an allowlisted command without invoking a shell.
+
+        An optional environment dictionary can override the subprocess
+        environment. When omitted, the subprocess inherits the parent
+        process environment.
+        """
 
         self._validate_command(command)
 
@@ -105,12 +112,12 @@ class CommandRunner:
                 timeout=self.timeout_seconds,
                 shell=False,
                 check=False,
+                env=env,
             )
 
             duration_seconds = time.perf_counter() - start_time
 
             stdout, stdout_truncated = self._truncate_output(completed_process.stdout)
-
             stderr, stderr_truncated = self._truncate_output(completed_process.stderr)
 
             return ExecutionResult(

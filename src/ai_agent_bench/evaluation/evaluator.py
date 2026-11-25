@@ -1,5 +1,6 @@
 """Independent evaluation of benchmark task workspaces."""
 
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,7 +25,7 @@ class EvaluationResult:
 
 
 class VisibleTestEvaluator:
-    """Run visible benchmark tests independently of the agent."""
+    """Run trusted benchmark tests against an agent's modified workspace."""
 
     def __init__(self, timeout_seconds: int = 300) -> None:
         if timeout_seconds <= 0:
@@ -35,21 +36,30 @@ class VisibleTestEvaluator:
     def evaluate(
         self,
         workspace: Path,
-        visible_tests_path: str,
+        trusted_visible_tests_directory: Path,
     ) -> EvaluationResult:
-        """Execute visible tests against the agent's modified workspace."""
+        """Execute trusted tests against the agent's modified solution."""
 
         workspace = workspace.resolve()
-        tests_directory = (workspace / visible_tests_path).resolve()
+        tests_directory = trusted_visible_tests_directory.resolve()
+        starter_directory = (workspace / "starter").resolve()
 
         if not workspace.is_dir():
             raise ValueError("Workspace must be an existing directory")
 
-        if not tests_directory.is_relative_to(workspace):
-            raise ValueError("Visible tests path must remain inside the workspace")
+        if tests_directory.is_relative_to(workspace):
+            raise ValueError("Trusted visible tests must be outside the agent workspace")
 
         if not tests_directory.is_dir():
-            raise FileNotFoundError(f"Visible tests directory does not exist: {visible_tests_path}")
+            raise FileNotFoundError(
+                f"Trusted visible tests directory does not exist: {tests_directory}"
+            )
+
+        if not starter_directory.is_relative_to(workspace):
+            raise ValueError("Starter directory must remain inside the workspace")
+
+        if not starter_directory.is_dir():
+            raise FileNotFoundError("Starter directory does not exist in the workspace")
 
         runner = CommandRunner(
             workspace=workspace,
@@ -64,8 +74,21 @@ class VisibleTestEvaluator:
             "-q",
         ]
 
+        environment = os.environ.copy()
+        existing_pythonpath = environment.get("PYTHONPATH", "")
+
+        python_paths = [str(starter_directory)]
+
+        if existing_pythonpath:
+            python_paths.append(existing_pythonpath)
+
+        environment["PYTHONPATH"] = os.pathsep.join(python_paths)
+
         try:
-            execution = runner.run(command=command)
+            execution = runner.run(
+                command=command,
+                env=environment,
+            )
 
         except Exception as exc:
             return EvaluationResult(
