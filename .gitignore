@@ -24,3 +24,5 @@ benchmark/tasks/*/reference/
 
 # Generated benchmark execution workspaces
 results/workspaces/
+
+.env
