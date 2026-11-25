@@ -17,3 +17,7 @@ venv/
 # Testing and linting caches
 .pytest_cache/
 .ruff_cache/
+
+# Benchmark evaluator assets - never publish
+benchmark/tasks/*/hidden_tests/
+benchmark/tasks/*/reference/

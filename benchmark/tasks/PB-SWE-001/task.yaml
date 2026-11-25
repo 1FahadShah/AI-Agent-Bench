@@ -4,20 +4,44 @@ name: Fix Pagination Boundary Bug
 
 description: >
   A software engineering task requiring an agent to identify and fix
-  a pagination boundary bug while preserving existing behavior.
+  pagination boundary bugs while preserving existing behavior.
 
 category: software_engineering
 
 difficulty: medium
 
 instructions: |
-  Investigate the provided codebase and identify the pagination bug.
+  Investigate the provided pagination implementation and fix its
+  incorrect pagination boundary behavior.
 
-  Implement a fix that correctly handles pagination boundaries.
+  Requirements:
 
-  Preserve existing functionality and avoid unnecessary changes.
+  1. Calculate total_pages correctly when the number of items is not
+     evenly divisible by page_size.
 
-  Run the available tests and verify your implementation.
+  2. When the input list is empty, total_pages must be 0.
+
+  3. Preserve the existing validation behavior:
+     - page must be >= 1
+     - page_size must be >= 1
+     - invalid values must raise ValueError
+
+  4. Return the correct items for the requested page.
+
+  5. Requests beyond the final page must return an empty items list.
+
+  6. Correctly calculate has_previous and has_next using the pagination
+     metadata and requested page.
+
+  7. Preserve the original ordering of items.
+
+  8. Do not mutate the original input list.
+
+  9. Preserve the existing response dictionary structure and keys.
+
+  10. Avoid unnecessary changes to the implementation.
+
+  Run the available visible tests and verify your solution.
 
 environment:
   python_version: "3.13"
@@ -34,4 +58,5 @@ tags:
   - software-engineering
   - debugging
   - pagination
+  - boundary-conditions
   - python
