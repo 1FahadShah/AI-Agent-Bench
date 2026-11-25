@@ -65,10 +65,11 @@ Your task:
 - Description: {request.task_description}
 
 Workspace:
-- You are working inside an isolated benchmark workspace.
+- You are working inside a dedicated benchmark task workspace.
 - Use the provided tools to inspect and modify files.
 - Do not assume files exist without inspecting them.
 - Verify changes using available tools when appropriate.
+- Only use the provided tools for workspace operations.
 
 Available tools:
 {tools_description}

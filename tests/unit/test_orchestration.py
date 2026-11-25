@@ -55,6 +55,32 @@ def paginate(items, page, page_size):
     }
 """
 
+PARTIALLY_FIXED_IMPLEMENTATION = """
+def paginate(items, page, page_size):
+    if page < 1 or page_size < 1:
+        raise ValueError("Invalid pagination parameters")
+
+    total_items = len(items)
+
+    # Deliberately overfits the visible test case.
+    total_pages = (
+        3 if total_items == 23 else total_items // page_size
+    )
+
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    return {
+        "items": items[start:end],
+        "page": page,
+        "page_size": page_size,
+        "total_items": total_items,
+        "total_pages": total_pages,
+        "has_previous": page > 1,
+        "has_next": page < total_pages,
+    }
+"""
+
 
 class MockLLMProvider(LLMProvider):
     """Deterministic LLM provider for orchestration tests."""
@@ -252,6 +278,8 @@ def test_orchestrator_completes_and_passes_benchmark(
     saved_result = json.loads(result.result_path.read_text(encoding="utf-8"))
 
     assert saved_result["visible_tests_passed"] is True
+    assert saved_result["hidden_tests_passed"] is True
+    assert saved_result["benchmark_passed"] is True
     assert saved_result["task"]["task_id"] == "PB-SWE-001"
     assert saved_result["agent"]["provider"] == "mock"
     assert saved_result["agent"]["model"] == "mock-model"
@@ -336,3 +364,63 @@ def test_orchestrator_rejects_unsupported_evaluation_type(
         orchestrator.run("PB-SWE-001")
 
     assert provider.generate_calls == 0
+
+
+def test_hidden_failure_overrides_visible_test_success(
+    benchmark_directories: dict[str, Path],
+    llm_config: LLMConfig,
+) -> None:
+    hidden_test = benchmark_directories["task"] / "hidden_tests" / "test_hidden.py"
+    hidden_test.write_text(
+        "from pagination import paginate\n\n"
+        "def test_non_multiple_page_count():\n"
+        "    result = paginate(list(range(21)), page=1, page_size=10)\n"
+        "    assert result['total_pages'] == 3\n",
+        encoding="utf-8",
+    )
+
+    provider = MockLLMProvider(
+        [
+            tool_action(
+                "write_file",
+                {
+                    "file_path": "starter/pagination.py",
+                    "content": PARTIALLY_FIXED_IMPLEMENTATION,
+                },
+            ),
+            final_action("Fixed the visible pagination example."),
+        ]
+    )
+
+    orchestrator = create_orchestrator(
+        benchmark_directories,
+        llm_config,
+        provider,
+    )
+
+    result = orchestrator.run("PB-SWE-001")
+
+    assert result.agent_result.completed is True
+
+    # The implementation passes the visible test.
+    assert result.evaluation_result.passed is True
+    assert result.hidden_evaluation_result.passed is False
+
+    # Hidden-test failure must prevent overall benchmark success.
+    assert result.passed is False
+
+    saved_result = json.loads(result.result_path.read_text(encoding="utf-8"))
+
+    assert saved_result["visible_tests_passed"] is True
+    assert saved_result["hidden_tests_passed"] is False
+    assert saved_result["benchmark_passed"] is False
+
+    assert saved_result["evaluation"]["visible"]["passed"] is True
+    assert saved_result["evaluation"]["hidden"]["passed"] is False
+
+    assert result.report_path.is_file()
+
+    report = result.report_path.read_text(encoding="utf-8")
+
+    assert "FAILED" in report
+    assert "hidden_tests_test_failure" in report
