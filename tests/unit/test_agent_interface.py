@@ -4,24 +4,23 @@ import pytest
 
 from ai_agent_bench.agent.interface import (
     Agent,
+    AgentAction,
     AgentRequest,
     AgentResult,
 )
-from ai_agent_bench.agent.tools import ToolRegistry
 
 
 class DummyAgent(Agent):
-    """Minimal test implementation of the Agent interface."""
+    """Minimal test implementation of the step-based Agent interface."""
 
-    def run(
+    def decide(
         self,
         request: AgentRequest,
-        tools: ToolRegistry,
-    ) -> AgentResult:
-        return AgentResult(
-            completed=True,
+        history: list[dict],
+    ) -> AgentAction:
+        return AgentAction(
+            action_type="final",
             final_message=f"Completed task {request.task_id}",
-            steps_used=1,
         )
 
 
@@ -60,6 +59,28 @@ def test_agent_request_custom_step_limit(
     assert request.max_steps == 5
 
 
+def test_agent_action_tool_call() -> None:
+    action = AgentAction(
+        action_type="tool",
+        tool_name="read_file",
+        arguments={"file_path": "pagination.py"},
+    )
+
+    assert action.action_type == "tool"
+    assert action.tool_name == "read_file"
+    assert action.arguments["file_path"] == "pagination.py"
+
+
+def test_agent_action_final() -> None:
+    action = AgentAction(
+        action_type="final",
+        final_message="I fixed the pagination bug.",
+    )
+
+    assert action.action_type == "final"
+    assert action.final_message == "I fixed the pagination bug."
+
+
 def test_agent_result_defaults() -> None:
     result = AgentResult(
         completed=True,
@@ -94,21 +115,16 @@ def test_agent_interface_is_abstract() -> None:
 def test_concrete_agent_implements_interface(
     tmp_path: Path,
 ) -> None:
-    workspace = tmp_path / "workspace"
-    workspace.mkdir()
-
     request = AgentRequest(
         task_id="PB-SWE-001",
         task_description="Fix pagination.",
-        workspace=workspace,
+        workspace=tmp_path,
         available_tools=[],
     )
 
-    tools = ToolRegistry(workspace)
     agent = DummyAgent()
 
-    result = agent.run(request, tools)
+    action = agent.decide(request, history=[])
 
-    assert result.completed is True
-    assert result.steps_used == 1
-    assert "PB-SWE-001" in result.final_message
+    assert action.action_type == "final"
+    assert "PB-SWE-001" in action.final_message

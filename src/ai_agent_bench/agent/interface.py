@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ai_agent_bench.agent.tools import ToolRegistry
-
 
 @dataclass
 class AgentRequest:
@@ -17,8 +15,18 @@ class AgentRequest:
 
 
 @dataclass
+class AgentAction:
+    """One action selected by an agent."""
+
+    action_type: str
+    tool_name: str | None = None
+    arguments: dict = field(default_factory=dict)
+    final_message: str | None = None
+
+
+@dataclass
 class AgentResult:
-    """Standardized result returned by an agent."""
+    """Standardized result returned after runtime execution."""
 
     completed: bool
     final_message: str
@@ -28,13 +36,13 @@ class AgentResult:
 
 
 class Agent(ABC):
-    """Base interface that all benchmark agents must implement."""
+    """Base interface for agents that make one decision per step."""
 
     @abstractmethod
-    def run(
+    def decide(
         self,
         request: AgentRequest,
-        tools: ToolRegistry,
-    ) -> AgentResult:
-        """Execute a benchmark task using the provided tools."""
+        history: list[dict],
+    ) -> AgentAction:
+        """Choose the next action based on the task and history."""
         raise NotImplementedError
