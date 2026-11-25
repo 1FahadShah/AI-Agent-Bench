@@ -1,3 +1,4 @@
+
 [project]
 name = "ai-agent-bench"
 version = "0.1.0"
@@ -10,6 +11,9 @@ dependencies = [
     "python-dotenv",
     "openai",
 ]
+
+[project.scripts]
+ai-agent-bench = "ai_agent_bench.cli:main"
 
 [project.optional-dependencies]
 dev = [
