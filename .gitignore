@@ -26,3 +26,5 @@ benchmark/tasks/*/reference/
 results/workspaces/
 
 .env
+
+PROJECT_SNAPSHOT.txt
