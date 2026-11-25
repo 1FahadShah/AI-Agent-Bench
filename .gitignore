@@ -1,0 +1,19 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Python package artifacts
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment secrets
+.env
+
+# Testing and linting caches
+.pytest_cache/
+.ruff_cache/
