@@ -1,0 +1,37 @@
+id: PB-SWE-001
+
+name: Fix Pagination Boundary Bug
+
+description: >
+  A software engineering task requiring an agent to identify and fix
+  a pagination boundary bug while preserving existing behavior.
+
+category: software_engineering
+
+difficulty: medium
+
+instructions: |
+  Investigate the provided codebase and identify the pagination bug.
+
+  Implement a fix that correctly handles pagination boundaries.
+
+  Preserve existing functionality and avoid unnecessary changes.
+
+  Run the available tests and verify your implementation.
+
+environment:
+  python_version: "3.13"
+  timeout_seconds: 300
+  max_agent_steps: 30
+
+evaluation:
+  evaluation_type: tests
+  visible_tests_path: visible_tests
+  hidden_tests_path: hidden_tests
+  reference_solution_path: reference
+
+tags:
+  - software-engineering
+  - debugging
+  - pagination
+  - python
