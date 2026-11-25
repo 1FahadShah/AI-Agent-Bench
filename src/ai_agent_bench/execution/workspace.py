@@ -38,9 +38,7 @@ class WorkspaceBuilder:
         workspace_directory = self.workspace_root / task_id / run_id
 
         if workspace_directory.exists():
-            raise FileExistsError(
-                f"Workspace already exists: {workspace_directory}"
-            )
+            raise FileExistsError(f"Workspace already exists: {workspace_directory}")
 
         task_file = task_directory / "task.yaml"
 
@@ -68,14 +66,10 @@ class WorkspaceBuilder:
             source_directory = task_directory / directory_name
 
             if not source_directory.exists():
-                raise FileNotFoundError(
-                    f"Required task directory not found: {source_directory}"
-                )
+                raise FileNotFoundError(f"Required task directory not found: {source_directory}")
 
             if not source_directory.is_dir():
-                raise ValueError(
-                    f"Expected a directory: {source_directory}"
-                )
+                raise ValueError(f"Expected a directory: {source_directory}")
 
             destination_directory = workspace_directory / directory_name
 
@@ -83,11 +77,11 @@ class WorkspaceBuilder:
                 source_directory,
                 destination_directory,
                 ignore=shutil.ignore_patterns(
-                "__pycache__",
-                "*.pyc",
-                ".pytest_cache",
-            ),
-)
+                    "__pycache__",
+                    "*.pyc",
+                    ".pytest_cache",
+                ),
+            )
 
         # Write the sanitized task definition into the agent workspace.
         workspace_task_file = workspace_directory / "task.yaml"

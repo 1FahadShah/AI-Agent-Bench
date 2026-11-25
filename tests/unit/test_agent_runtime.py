@@ -1,4 +1,3 @@
-
 import pytest
 
 from ai_agent_bench.agent.interface import Agent, AgentAction, AgentRequest
@@ -135,7 +134,6 @@ def test_tool_failure_is_recorded_and_agent_can_continue(
 
     assert first_step["tool_success"] is False
     assert first_step["tool_error"] is not None
-
 
 
 def test_disallowed_tool_is_blocked(runtime, request_data):

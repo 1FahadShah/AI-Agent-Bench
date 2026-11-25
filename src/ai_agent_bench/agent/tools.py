@@ -62,14 +62,10 @@ class ToolRegistry:
             target_directory = self._resolve_path(directory)
 
             if not target_directory.exists():
-                raise FileNotFoundError(
-                    f"Directory does not exist: {directory}"
-                )
+                raise FileNotFoundError(f"Directory does not exist: {directory}")
 
             if not target_directory.is_dir():
-                raise ValueError(
-                    f"Path is not a directory: {directory}"
-                )
+                raise ValueError(f"Path is not a directory: {directory}")
 
             entries = sorted(
                 target_directory.iterdir(),
@@ -83,15 +79,9 @@ class ToolRegistry:
 
                 relative_entry = entry.relative_to(self.workspace)
 
-                output_lines.append(
-                    f"{entry_type}: {relative_entry}"
-                )
+                output_lines.append(f"{entry_type}: {relative_entry}")
 
-            output = (
-                "\n".join(output_lines)
-                if output_lines
-                else "Directory is empty."
-            )
+            output = "\n".join(output_lines) if output_lines else "Directory is empty."
 
             return ToolResult(
                 tool_name="list_files",
@@ -117,14 +107,10 @@ class ToolRegistry:
             target_file = self._resolve_path(file_path)
 
             if not target_file.exists():
-                raise FileNotFoundError(
-                    f"File does not exist: {file_path}"
-                )
+                raise FileNotFoundError(f"File does not exist: {file_path}")
 
             if not target_file.is_file():
-                raise ValueError(
-                    f"Path is not a file: {file_path}"
-                )
+                raise ValueError(f"Path is not a file: {file_path}")
 
             content = target_file.read_text(
                 encoding="utf-8",
@@ -191,15 +177,10 @@ class ToolRegistry:
             )
 
             if not target_directory.exists():
-                raise FileNotFoundError(
-                    f"Working directory does not exist: "
-                    f"{working_directory}"
-                )
+                raise FileNotFoundError(f"Working directory does not exist: {working_directory}")
 
             if not target_directory.is_dir():
-                raise ValueError(
-                    "Working directory must be a directory"
-                )
+                raise ValueError("Working directory must be a directory")
 
             result: ExecutionResult = self.command_runner.run(
                 command=command,
@@ -213,21 +194,14 @@ class ToolRegistry:
             ]
 
             if result.stdout:
-                output_parts.append(
-                    f"\nSTDOUT:\n{result.stdout}"
-                )
+                output_parts.append(f"\nSTDOUT:\n{result.stdout}")
 
             if result.stderr:
-                output_parts.append(
-                    f"\nSTDERR:\n{result.stderr}"
-                )
+                output_parts.append(f"\nSTDERR:\n{result.stderr}")
 
             return ToolResult(
                 tool_name="run_command",
-                success=(
-                    result.exit_code == 0
-                    and not result.timed_out
-                ),
+                success=(result.exit_code == 0 and not result.timed_out),
                 output="\n".join(output_parts),
                 error=(
                     "Command failed or timed out."

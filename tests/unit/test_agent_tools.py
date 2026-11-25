@@ -76,9 +76,7 @@ def test_write_file_creates_file(
     created_file = workspace / "output" / "result.txt"
 
     assert created_file.exists()
-    assert created_file.read_text(encoding="utf-8") == (
-        "benchmark output"
-    )
+    assert created_file.read_text(encoding="utf-8") == ("benchmark output")
 
 
 def test_read_file_rejects_path_traversal(

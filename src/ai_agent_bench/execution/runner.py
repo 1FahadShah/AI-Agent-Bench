@@ -48,17 +48,13 @@ class CommandRunner:
         resolved_directory = working_directory.resolve()
 
         if not resolved_directory.exists():
-            raise FileNotFoundError(
-                f"Working directory does not exist: {resolved_directory}"
-            )
+            raise FileNotFoundError(f"Working directory does not exist: {resolved_directory}")
 
         if not resolved_directory.is_dir():
             raise ValueError("Working directory must be a directory")
 
         if not resolved_directory.is_relative_to(self.workspace):
-            raise ValueError(
-                "Working directory must remain inside the benchmark workspace"
-            )
+            raise ValueError("Working directory must remain inside the benchmark workspace")
 
         return resolved_directory
 
@@ -72,9 +68,7 @@ class CommandRunner:
         executable_name = Path(command[0]).name.lower()
 
         if executable_name not in self.ALLOWED_COMMANDS:
-            raise ValueError(
-                f"Command is not allowed: {executable_name}"
-            )
+            raise ValueError(f"Command is not allowed: {executable_name}")
 
     def _truncate_output(self, output: str) -> tuple[str, bool]:
         if len(output) <= self.max_output_chars:
@@ -82,9 +76,7 @@ class CommandRunner:
 
         truncated_output = output[: self.max_output_chars]
 
-        truncated_output += (
-            "\n\n[OUTPUT TRUNCATED: maximum output size reached]"
-        )
+        truncated_output += "\n\n[OUTPUT TRUNCATED: maximum output size reached]"
 
         return truncated_output, True
 
@@ -100,9 +92,7 @@ class CommandRunner:
         if working_directory is None:
             working_directory = self.workspace
 
-        resolved_working_directory = self._validate_working_directory(
-            working_directory
-        )
+        resolved_working_directory = self._validate_working_directory(working_directory)
 
         start_time = time.perf_counter()
 
@@ -119,13 +109,9 @@ class CommandRunner:
 
             duration_seconds = time.perf_counter() - start_time
 
-            stdout, stdout_truncated = self._truncate_output(
-                completed_process.stdout
-            )
+            stdout, stdout_truncated = self._truncate_output(completed_process.stdout)
 
-            stderr, stderr_truncated = self._truncate_output(
-                completed_process.stderr
-            )
+            stderr, stderr_truncated = self._truncate_output(completed_process.stderr)
 
             return ExecutionResult(
                 command=command,
@@ -134,9 +120,7 @@ class CommandRunner:
                 stderr=stderr,
                 duration_seconds=duration_seconds,
                 timed_out=False,
-                output_truncated=(
-                    stdout_truncated or stderr_truncated
-                ),
+                output_truncated=(stdout_truncated or stderr_truncated),
             )
 
         except subprocess.TimeoutExpired as exc:
@@ -161,7 +145,5 @@ class CommandRunner:
                 stderr=stderr,
                 duration_seconds=duration_seconds,
                 timed_out=True,
-                output_truncated=(
-                    stdout_truncated or stderr_truncated
-                ),
+                output_truncated=(stdout_truncated or stderr_truncated),
             )

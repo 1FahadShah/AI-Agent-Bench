@@ -16,9 +16,7 @@ def workspace(tmp_path: Path) -> Path:
 def test_runner_executes_python_command(workspace: Path) -> None:
     runner = CommandRunner(workspace)
 
-    result = runner.run(
-        [sys.executable, "-c", "print('hello benchmark')"]
-    )
+    result = runner.run([sys.executable, "-c", "print('hello benchmark')"])
 
     assert result.exit_code == 0
     assert "hello benchmark" in result.stdout
