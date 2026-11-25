@@ -3,7 +3,6 @@ from pathlib import Path
 from ai_agent_bench.benchmark.loader import TaskLoader
 from ai_agent_bench.benchmark.models import TaskCategory, TaskDifficulty
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TASKS_DIRECTORY = PROJECT_ROOT / "benchmark" / "tasks"
 
