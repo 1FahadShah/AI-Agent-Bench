@@ -1,0 +1,32 @@
+[project]
+name = "ai-agent-bench"
+version = "0.1.0"
+description = "A framework for evaluating AI agents through task execution and failure analysis."
+requires-python = ">=3.11"
+dependencies = [
+    "typer",
+    "pydantic",
+    "PyYAML",
+    "python-dotenv",
+    "openai",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"

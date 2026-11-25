@@ -1,0 +1,9 @@
+typer
+pydantic
+PyYAML
+python-dotenv
+openai
+
+[dev]
+pytest
+ruff
