@@ -85,3 +85,20 @@ def test_middleware_rejects_expired_session():
         "authenticated": False,
         "user_id": None,
     }
+
+def test_middleware_rejects_session_missing_session_id():
+    session = {
+        "user_id": "user-1",
+        "issued_at": 1000,
+        "expires_at": 4600,
+    }
+
+    authenticated_user = authenticate(session, 2000)
+    middleware_result = require_authentication(session, 2000)
+
+    assert authenticated_user is None
+
+    assert middleware_result == {
+        "authenticated": False,
+        "user_id": None,
+    }
