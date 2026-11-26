@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,8 +43,8 @@ class ToolRegistry:
     def _resolve_path(self, relative_path: str) -> Path:
         """Resolve a path and ensure it remains inside the workspace."""
 
-        if not relative_path:
-            raise ValueError("Path cannot be empty")
+        if not isinstance(relative_path, str) or not relative_path.strip():
+            raise ValueError("Path must be a non-empty string")
 
         resolved_path = (self.workspace / relative_path).resolve()
 
@@ -62,26 +63,38 @@ class ToolRegistry:
             target_directory = self._resolve_path(directory)
 
             if not target_directory.exists():
-                raise FileNotFoundError(f"Directory does not exist: {directory}")
+                raise FileNotFoundError(
+                    f"Directory does not exist: {directory}"
+                )
 
             if not target_directory.is_dir():
-                raise ValueError(f"Path is not a directory: {directory}")
+                raise ValueError(
+                    f"Path is not a directory: {directory}"
+                )
 
             entries = sorted(
                 target_directory.iterdir(),
-                key=lambda path: (not path.is_dir(), path.name.lower()),
+                key=lambda path: (
+                    not path.is_dir(),
+                    path.name.lower(),
+                ),
             )
 
             output_lines = []
 
             for entry in entries:
                 entry_type = "DIR" if entry.is_dir() else "FILE"
-
                 relative_entry = entry.relative_to(self.workspace)
 
-                output_lines.append(f"{entry_type}: {relative_entry}")
+                output_lines.append(
+                    f"{entry_type}: {relative_entry}"
+                )
 
-            output = "\n".join(output_lines) if output_lines else "Directory is empty."
+            output = (
+                "\n".join(output_lines)
+                if output_lines
+                else "Directory is empty."
+            )
 
             return ToolResult(
                 tool_name="list_files",
@@ -107,10 +120,14 @@ class ToolRegistry:
             target_file = self._resolve_path(file_path)
 
             if not target_file.exists():
-                raise FileNotFoundError(f"File does not exist: {file_path}")
+                raise FileNotFoundError(
+                    f"File does not exist: {file_path}"
+                )
 
             if not target_file.is_file():
-                raise ValueError(f"Path is not a file: {file_path}")
+                raise ValueError(
+                    f"Path is not a file: {file_path}"
+                )
 
             content = target_file.read_text(
                 encoding="utf-8",
@@ -138,6 +155,9 @@ class ToolRegistry:
         """Write a text file inside the workspace."""
 
         try:
+            if not isinstance(content, str):
+                raise ValueError("File content must be a string")
+
             target_file = self._resolve_path(file_path)
 
             target_file.parent.mkdir(
@@ -171,16 +191,41 @@ class ToolRegistry:
     ) -> ToolResult:
         """Execute an allowlisted command inside the workspace."""
 
+        # Validate the argument before passing it to CommandRunner.
+        # This prevents strings from being interpreted as character sequences.
+        if (
+            not isinstance(command, list)
+            or not command
+            or not all(
+                isinstance(part, str) and part.strip()
+                for part in command
+            )
+        ):
+            return ToolResult(
+                tool_name="run_command",
+                success=False,
+                output="",
+                error=(
+                    "command must be a non-empty list of "
+                    "non-empty strings. Example: "
+                    "['python', '-m', 'pytest', 'visible_tests']"
+                ),
+            )
+
         try:
             target_directory = self._resolve_path(
                 working_directory,
             )
 
             if not target_directory.exists():
-                raise FileNotFoundError(f"Working directory does not exist: {working_directory}")
+                raise FileNotFoundError(
+                    f"Working directory does not exist: {working_directory}"
+                )
 
             if not target_directory.is_dir():
-                raise ValueError("Working directory must be a directory")
+                raise ValueError(
+                    "Working directory must be a directory"
+                )
 
             result: ExecutionResult = self.command_runner.run(
                 command=command,
@@ -194,14 +239,21 @@ class ToolRegistry:
             ]
 
             if result.stdout:
-                output_parts.append(f"\nSTDOUT:\n{result.stdout}")
+                output_parts.append(
+                    f"\nSTDOUT:\n{result.stdout}"
+                )
 
             if result.stderr:
-                output_parts.append(f"\nSTDERR:\n{result.stderr}")
+                output_parts.append(
+                    f"\nSTDERR:\n{result.stderr}"
+                )
 
             return ToolResult(
                 tool_name="run_command",
-                success=(result.exit_code == 0 and not result.timed_out),
+                success=(
+                    result.exit_code == 0
+                    and not result.timed_out
+                ),
                 output="\n".join(output_parts),
                 error=(
                     "Command failed or timed out."
@@ -231,6 +283,14 @@ class ToolRegistry:
                 success=False,
                 output="",
                 error=f"Unknown tool: {tool_name}",
+            )
+
+        if not isinstance(arguments, dict):
+            return ToolResult(
+                tool_name=tool_name,
+                success=False,
+                output="",
+                error="Tool arguments must be a JSON object.",
             )
 
         try:

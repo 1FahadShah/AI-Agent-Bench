@@ -1,0 +1,229 @@
+{
+  "task": {
+    "task_id": "PB-SWE-002",
+    "task_name": "Fix Cross-Module Session Authentication Bugs",
+    "category": "software_engineering",
+    "difficulty": "medium",
+    "evaluation_type": "tests"
+  },
+  "agent": {
+    "provider": "openrouter",
+    "model": "particle-ai/particle-1:free",
+    "completed": false,
+    "final_message": "Agent execution failed.",
+    "steps_used": 13,
+    "error": "Agent decision error: OpenRouter request failed (RateLimitError).",
+    "metadata": {
+      "history": [
+        {
+          "step": 1,
+          "action_type": "tool",
+          "tool_name": "list_files",
+          "arguments": {},
+          "tool_success": true,
+          "tool_output": "DIR: starter\nDIR: visible_tests\nFILE: task.yaml",
+          "tool_error": null
+        },
+        {
+          "step": 2,
+          "action_type": "tool",
+          "tool_name": "list_files",
+          "arguments": {
+            "path": "starter"
+          },
+          "tool_success": false,
+          "tool_output": "",
+          "tool_error": "Invalid tool arguments: ToolRegistry.list_files() got an unexpected keyword argument 'path'"
+        },
+        {
+          "step": 3,
+          "action_type": "tool",
+          "tool_name": "run_command",
+          "arguments": {
+            "command": "find starter visible_tests -maxdepth 3 -type f -print"
+          },
+          "tool_success": false,
+          "tool_output": "",
+          "tool_error": "Command is not allowed: f"
+        },
+        {
+          "step": 4,
+          "action_type": "tool",
+          "tool_name": "run_command",
+          "arguments": {
+            "command": "ls -la starter"
+          },
+          "tool_success": false,
+          "tool_output": "",
+          "tool_error": "Command is not allowed: l"
+        },
+        {
+          "step": 5,
+          "action_type": "tool",
+          "tool_name": "read_file",
+          "arguments": {
+            "file_path": "task.yaml"
+          },
+          "tool_success": true,
+          "tool_output": "id: PB-SWE-002\nname: Fix Cross-Module Session Authentication Bugs\ndescription: 'A multi-file software engineering debugging task involving inconsistent\n  session expiration, refresh behavior, and authentication decisions across application\n  modules.\n\n  '\ncategory: software_engineering\ndifficulty: medium\ninstructions: \"Investigate the session-management implementation across the application\\n\\\n  modules and correct the identified behavioral inconsistencies.\\n\\nThe application\\\n  \\ uses numeric Unix timestamps and a configured session\\nlifetime.\\n\\nRequirements:\\n\\\n  \\n1. A session is valid only when the current timestamp is strictly less\\n   than\\\n  \\ its expiration timestamp.\\n\\n2. A session must be considered expired when the\\\n  \\ current timestamp is\\n   equal to or greater than its expiration timestamp.\\n\\n\\\n  3. Authentication must reject expired sessions.\\n\\n4. Middleware authentication\\\n  \\ decisions must be consistent with the\\n   application's shared authentication\\\n  \\ logic.\\n\\n5. Successful session refresh must:\\n   - Preserve the original user\\\n  \\ identity.\\n   - Preserve the session identity.\\n   - Set issued_at to the refresh\\\n  \\ timestamp.\\n   - Calculate expires_at from the refresh timestamp and configured\\n\\\n  \\     session lifetime.\\n\\n6. An expired session must not be refreshed.\\n\\n7. Refresh\\\n  \\ operations must not mutate the original session dictionary.\\n\\n8. Invalid or incomplete\\\n  \\ session data must not be accepted as valid.\\n\\n9. Preserve the existing public\\\n  \\ function names and response structures.\\n\\n10. Avoid unrelated changes.\\n\\n  11.\\\n  \\ Reject malformed session data, including:\\n    - Missing required fields.\\n  \\\n  \\  - Empty user or session identifiers.\\n    - Non-integer timestamps.\\n    - Boolean\\\n  \\ timestamps.\\n    - Issue timestamps later than the current timestamp.\\n    - Expiration\\\n  \\ timestamps earlier than or equal to issue timestamps.\\n\\nRun the available visible\\\n  \\ tests and verify your solution.\\n\"\nenvironment:\n  python_version: '3.13'\n  timeout_seconds: 300\n  max_agent_steps: 30\nevaluation:\n  evaluation_type: tests\n  visible_tests_path: visible_tests\ntags:\n- software-engineering\n- multi-file-debugging\n- repository-understanding\n- authentication\n- session-management\n- regression-testing\n",
+          "tool_error": null
+        },
+        {
+          "step": 6,
+          "action_type": "tool",
+          "tool_name": "run_command",
+          "arguments": {
+            "command": "python -c \"import os; [print(os.path.join(r,f)) for r,d,fs in os.walk('starter') for f in fs]\""
+          },
+          "tool_success": false,
+          "tool_output": "",
+          "tool_error": "Command is not allowed: p"
+        },
+        {
+          "step": 7,
+          "action_type": "tool",
+          "tool_name": "run_command",
+          "arguments": {
+            "command": "cat starter/*"
+          },
+          "tool_success": false,
+          "tool_output": "",
+          "tool_error": "Command is not allowed: c"
+        },
+        {
+          "step": 8,
+          "action_type": "tool",
+          "tool_name": "list_files",
+          "arguments": {
+            "directory": "starter"
+          },
+          "tool_success": true,
+          "tool_output": "DIR: starter\\app",
+          "tool_error": null
+        },
+        {
+          "step": 9,
+          "action_type": "tool",
+          "tool_name": "list_files",
+          "arguments": {
+            "directory": "starter/app"
+          },
+          "tool_success": true,
+          "tool_output": "FILE: starter\\app\\__init__.py\nFILE: starter\\app\\auth.py\nFILE: starter\\app\\config.py\nFILE: starter\\app\\middleware.py\nFILE: starter\\app\\session.py",
+          "tool_error": null
+        },
+        {
+          "step": 10,
+          "action_type": "tool",
+          "tool_name": "read_file",
+          "arguments": {
+            "file_path": "starter/app/session.py"
+          },
+          "tool_success": true,
+          "tool_output": "from app.config import SESSION_TTL_SECONDS\n\n\ndef create_session(\n    user_id: str,\n    session_id: str,\n    now: int,\n) -> dict:\n    return {\n        \"user_id\": user_id,\n        \"session_id\": session_id,\n        \"issued_at\": now,\n        \"expires_at\": now + SESSION_TTL_SECONDS,\n    }\n\n\ndef is_session_valid(session: dict, now: int) -> bool:\n    if not isinstance(session, dict):\n        return False\n\n    required_fields = {\n        \"user_id\",\n        \"session_id\",\n        \"issued_at\",\n        \"expires_at\",\n    }\n\n    if not required_fields.issubset(session):\n        return False\n\n    # BUG: A session is incorrectly accepted at its expiration boundary.\n    return now <= session[\"expires_at\"]\n\n\ndef refresh_session(session: dict, now: int) -> dict | None:\n    if not is_session_valid(session, now):\n        return None\n\n    refreshed = session.copy()\n    refreshed[\"issued_at\"] = now\n\n    # BUG: Expiration is calculated from the original issue time.\n    refreshed[\"expires_at\"] = (\n        session[\"issued_at\"] + SESSION_TTL_SECONDS\n    )\n\n    return refreshed",
+          "tool_error": null
+        },
+        {
+          "step": 11,
+          "action_type": "tool",
+          "tool_name": "list_files",
+          "arguments": {
+            "directory": "visible_tests"
+          },
+          "tool_success": true,
+          "tool_output": "FILE: visible_tests\\test_authentication.py",
+          "tool_error": null
+        },
+        {
+          "step": 12,
+          "action_type": "tool",
+          "tool_name": "read_file",
+          "arguments": {
+            "file_path": "starter/app/auth.py"
+          },
+          "tool_success": true,
+          "tool_output": "from app.session import is_session_valid\n\n\ndef authenticate(session: dict, now: int) -> str | None:\n    if not is_session_valid(session, now):\n        return None\n\n    return session[\"user_id\"]",
+          "tool_error": null
+        }
+      ]
+    }
+  },
+  "evaluation": {
+    "evaluation_type": "visible_tests",
+    "passed": false,
+    "exit_code": 1,
+    "stdout": ".FF..F.F...FFF.FFF                                                       [100%]\n================================== FAILURES ===================================\n_______________ test_session_is_invalid_at_expiration_boundary ________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:16: in test_session_is_invalid_at_expiration_boundary\n    assert is_session_valid(session, 4600) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n_________________ test_authentication_rejects_expired_session _________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:22: in test_authentication_rejects_expired_session\n    assert authenticate(session, 4600) is None\nE   AssertionError: assert 'user-1' is None\nE    +  where 'user-1' = authenticate({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n______________ test_refresh_updates_expiration_from_refresh_time ______________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:48: in test_refresh_updates_expiration_from_refresh_time\n    assert refreshed[\"expires_at\"] == 5600\nE   assert 4600 == 5600\n__________________ test_expired_session_cannot_be_refreshed ___________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:63: in test_expired_session_cannot_be_refreshed\n    assert refresh_session(session, 4600) is None\nE   AssertionError: assert {'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 4600, 'expires_at': 4600} is None\nE    +  where {'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 4600, 'expires_at': 4600} = refresh_session({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n_____________ test_middleware_rejects_session_missing_session_id ______________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:101: in test_middleware_rejects_session_missing_session_id\n    assert middleware_result == {\nE   AssertionError: assert {'authenticat...id': 'user-1'} == {'authenticat...ser_id': None}\nE     \nE     Differing items:\nE     {'user_id': 'user-1'} != {'user_id': None}\nE     {'authenticated': True} != {'authenticated': False}\nE     Use -v to get more diff\n___________________ test_session_rejects_string_timestamps ____________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:110: in test_session_rejects_string_timestamps\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': '1000', 'expires_at': 4600}, 2000)\n_________________ test_session_rejects_future_issue_timestamp _________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:116: in test_session_rejects_future_issue_timestamp\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 3000, 'expires_at': 6600}, 2000)\n_________________ test_session_rejects_empty_user_identifier __________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:129: in test_session_rejects_empty_user_identifier\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': '', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 2000)\n________________ test_session_rejects_empty_session_identifier ________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:135: in test_session_rejects_empty_session_identifier\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': '', 'issued_at': 1000, 'expires_at': 4600}, 2000)\n___________________ test_session_rejects_boolean_timestamps ___________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:142: in test_session_rejects_boolean_timestamps\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': True, 'expires_at': 4600}, 2000)\n=========================== short test summary info ===========================\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_is_invalid_at_expiration_boundary\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_authentication_rejects_expired_session\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_refresh_updates_expiration_from_refresh_time\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_expired_session_cannot_be_refreshed\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_middleware_rejects_session_missing_session_id\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_string_timestamps\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_future_issue_timestamp\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_empty_user_identifier\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_empty_session_identifier\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_boolean_timestamps\n10 failed, 8 passed in 0.10s\n",
+    "stderr": "",
+    "duration_seconds": 0.35941380000440404,
+    "timed_out": false,
+    "output_truncated": false,
+    "error": "Visible tests failed.",
+    "execution_error": false,
+    "passed_tests": 8,
+    "failed_tests": 10,
+    "error_tests": 0,
+    "skipped_tests": 0,
+    "visible": {
+      "evaluation_type": "visible_tests",
+      "passed": false,
+      "exit_code": 1,
+      "stdout": ".FF..F.F...FFF.FFF                                                       [100%]\n================================== FAILURES ===================================\n_______________ test_session_is_invalid_at_expiration_boundary ________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:16: in test_session_is_invalid_at_expiration_boundary\n    assert is_session_valid(session, 4600) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n_________________ test_authentication_rejects_expired_session _________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:22: in test_authentication_rejects_expired_session\n    assert authenticate(session, 4600) is None\nE   AssertionError: assert 'user-1' is None\nE    +  where 'user-1' = authenticate({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n______________ test_refresh_updates_expiration_from_refresh_time ______________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:48: in test_refresh_updates_expiration_from_refresh_time\n    assert refreshed[\"expires_at\"] == 5600\nE   assert 4600 == 5600\n__________________ test_expired_session_cannot_be_refreshed ___________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:63: in test_expired_session_cannot_be_refreshed\n    assert refresh_session(session, 4600) is None\nE   AssertionError: assert {'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 4600, 'expires_at': 4600} is None\nE    +  where {'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 4600, 'expires_at': 4600} = refresh_session({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n_____________ test_middleware_rejects_session_missing_session_id ______________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:101: in test_middleware_rejects_session_missing_session_id\n    assert middleware_result == {\nE   AssertionError: assert {'authenticat...id': 'user-1'} == {'authenticat...ser_id': None}\nE     \nE     Differing items:\nE     {'user_id': 'user-1'} != {'user_id': None}\nE     {'authenticated': True} != {'authenticated': False}\nE     Use -v to get more diff\n___________________ test_session_rejects_string_timestamps ____________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:110: in test_session_rejects_string_timestamps\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': '1000', 'expires_at': 4600}, 2000)\n_________________ test_session_rejects_future_issue_timestamp _________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:116: in test_session_rejects_future_issue_timestamp\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 3000, 'expires_at': 6600}, 2000)\n_________________ test_session_rejects_empty_user_identifier __________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:129: in test_session_rejects_empty_user_identifier\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': '', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 2000)\n________________ test_session_rejects_empty_session_identifier ________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:135: in test_session_rejects_empty_session_identifier\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': '', 'issued_at': 1000, 'expires_at': 4600}, 2000)\n___________________ test_session_rejects_boolean_timestamps ___________________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py:142: in test_session_rejects_boolean_timestamps\n    assert is_session_valid(session, 2000) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': True, 'expires_at': 4600}, 2000)\n=========================== short test summary info ===========================\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_is_invalid_at_expiration_boundary\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_authentication_rejects_expired_session\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_refresh_updates_expiration_from_refresh_time\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_expired_session_cannot_be_refreshed\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_middleware_rejects_session_missing_session_id\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_string_timestamps\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_future_issue_timestamp\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_empty_user_identifier\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_empty_session_identifier\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\visible_tests\\test_authentication.py::test_session_rejects_boolean_timestamps\n10 failed, 8 passed in 0.10s\n",
+      "stderr": "",
+      "duration_seconds": 0.35941380000440404,
+      "timed_out": false,
+      "output_truncated": false,
+      "error": "Visible tests failed.",
+      "execution_error": false,
+      "passed_tests": 8,
+      "failed_tests": 10,
+      "error_tests": 0,
+      "skipped_tests": 0
+    },
+    "hidden": {
+      "evaluation_type": "hidden_tests",
+      "passed": false,
+      "exit_code": 1,
+      "stdout": "F..FF.F........                                                          [100%]\n================================== FAILURES ===================================\n____________ test_session_expires_exactly_at_expiration_timestamp _____________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py:10: in test_session_expires_exactly_at_expiration_timestamp\n    assert is_session_valid(session, 4600) is False\nE   AssertionError: assert True is False\nE    +  where True = is_session_valid({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n_______ test_authentication_and_middleware_reject_same_expired_session ________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py:28: in test_authentication_and_middleware_reject_same_expired_session\n    assert authenticate(session, 4600) is None\nE   AssertionError: assert 'user-1' is None\nE    +  where 'user-1' = authenticate({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n_______________ test_refresh_at_expiration_boundary_is_rejected _______________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py:39: in test_refresh_at_expiration_boundary_is_rejected\n    assert refresh_session(session, 4600) is None\nE   AssertionError: assert {'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 4600, 'expires_at': 4600} is None\nE    +  where {'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 4600, 'expires_at': 4600} = refresh_session({'user_id': 'user-1', 'session_id': 'session-1', 'issued_at': 1000, 'expires_at': 4600}, 4600)\n___________ test_refresh_calculates_expiration_from_new_issue_time ____________\n..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py:54: in test_refresh_calculates_expiration_from_new_issue_time\n    assert refreshed[\"expires_at\"] == 6600\nE   assert 4600 == 6600\n=========================== short test summary info ===========================\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py::test_session_expires_exactly_at_expiration_timestamp\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py::test_authentication_and_middleware_reject_same_expired_session\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py::test_refresh_at_expiration_boundary_is_rejected\nFAILED ..\\..\\..\\..\\benchmark\\tasks\\PB-SWE-002\\hidden_tests\\test_session_security.py::test_refresh_calculates_expiration_from_new_issue_time\n4 failed, 11 passed in 0.06s\n",
+      "stderr": "",
+      "duration_seconds": 0.28118649998214096,
+      "timed_out": false,
+      "output_truncated": false,
+      "error": "Hidden tests failed.",
+      "execution_error": false,
+      "passed_tests": 11,
+      "failed_tests": 4,
+      "error_tests": 0,
+      "skipped_tests": 0
+    },
+    "score": {
+      "score": 57.58,
+      "passed_tests": 19,
+      "failed_tests": 14,
+      "error_tests": 0,
+      "skipped_tests": 0,
+      "total_tests": 33,
+      "agent_completed": false,
+      "benchmark_passed": false,
+      "visible_pass_rate": 0.4444444444444444,
+      "hidden_pass_rate": 0.7333333333333333
+    },
+    "failure_analysis": {
+      "categories": [
+        "agent_execution_error",
+        "visible_tests_test_failure",
+        "hidden_tests_test_failure"
+      ],
+      "summary": "The agent encountered an execution error. One or more visible tests failed. One or more hidden tests failed.",
+      "failed": true
+    },
+    "benchmark_passed": false
+  },
+  "workspace": "D:\\AI Products\\AI-Agent-Bench\\results\\workspaces\\PB-SWE-002\\20261126T113905920671Z_52d04abb",
+  "visible_tests_passed": false,
+  "hidden_tests_passed": false,
+  "agent_completed": false,
+  "benchmark_passed": false,
+  "report": "# Benchmark Report: PB-SWE-002\n\n- Run ID: 20261126T113905920671Z_52d04abb\n- Overall status: FAILED\n- Agent execution: Incomplete\n- Test score: 57.58/100\n\n## Test Summary\n\n- Total tests: 33\n- Passed: 19\n- Failed: 14\n- Errors: 0\n- Skipped: 0\n\n## Evaluation Pass Rates\n\n- Visible: 44.44%\n- Hidden: 73.33%\n\n## Failure Analysis\n\nThe agent encountered an execution error. One or more visible tests failed. One or more hidden tests failed.\n\nCategories:\n- agent_execution_error\n- visible_tests_test_failure\n- hidden_tests_test_failure\n",
+  "run_id": "20261126T113905920671Z_52d04abb",
+  "recorded_at": "2026-11-26T11:39:26.986610+00:00"
+}
