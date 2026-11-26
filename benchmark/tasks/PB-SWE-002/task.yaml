@@ -48,6 +48,14 @@ instructions: |
 
   10. Avoid unrelated changes.
 
+    11. Reject malformed session data, including:
+      - Missing required fields.
+      - Empty user or session identifiers.
+      - Non-integer timestamps.
+      - Boolean timestamps.
+      - Issue timestamps later than the current timestamp.
+      - Expiration timestamps earlier than or equal to issue timestamps.
+
   Run the available visible tests and verify your solution.
 
 environment:

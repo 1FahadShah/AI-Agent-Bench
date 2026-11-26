@@ -102,3 +102,41 @@ def test_middleware_rejects_session_missing_session_id():
         "authenticated": False,
         "user_id": None,
     }
+
+def test_session_rejects_string_timestamps():
+    session = create_session("user-1", "session-1", 1000)
+    session["issued_at"] = "1000"
+
+    assert is_session_valid(session, 2000) is False
+
+
+def test_session_rejects_future_issue_timestamp():
+    session = create_session("user-1", "session-1", 3000)
+
+    assert is_session_valid(session, 2000) is False
+
+
+def test_session_rejects_expiration_before_issue_time():
+    session = create_session("user-1", "session-1", 1000)
+    session["expires_at"] = 900
+
+    assert is_session_valid(session, 2000) is False
+
+
+def test_session_rejects_empty_user_identifier():
+    session = create_session("", "session-1", 1000)
+
+    assert is_session_valid(session, 2000) is False
+
+
+def test_session_rejects_empty_session_identifier():
+    session = create_session("user-1", "", 1000)
+
+    assert is_session_valid(session, 2000) is False
+
+
+def test_session_rejects_boolean_timestamps():
+    session = create_session("user-1", "session-1", 1000)
+    session["issued_at"] = True
+
+    assert is_session_valid(session, 2000) is False
