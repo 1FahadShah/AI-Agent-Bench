@@ -1,0 +1,70 @@
+id: PB-SWE-002
+
+name: Fix Cross-Module Session Authentication Bugs
+
+description: >
+  A multi-file software engineering debugging task involving inconsistent
+  session expiration, refresh behavior, and authentication decisions across
+  application modules.
+
+category: software_engineering
+
+difficulty: medium
+
+instructions: |
+  Investigate the session-management implementation across the application
+  modules and correct the identified behavioral inconsistencies.
+
+  The application uses numeric Unix timestamps and a configured session
+  lifetime.
+
+  Requirements:
+
+  1. A session is valid only when the current timestamp is strictly less
+     than its expiration timestamp.
+
+  2. A session must be considered expired when the current timestamp is
+     equal to or greater than its expiration timestamp.
+
+  3. Authentication must reject expired sessions.
+
+  4. Middleware authentication decisions must be consistent with the
+     application's shared authentication logic.
+
+  5. Successful session refresh must:
+     - Preserve the original user identity.
+     - Preserve the session identity.
+     - Set issued_at to the refresh timestamp.
+     - Calculate expires_at from the refresh timestamp and configured
+       session lifetime.
+
+  6. An expired session must not be refreshed.
+
+  7. Refresh operations must not mutate the original session dictionary.
+
+  8. Invalid or incomplete session data must not be accepted as valid.
+
+  9. Preserve the existing public function names and response structures.
+
+  10. Avoid unrelated changes.
+
+  Run the available visible tests and verify your solution.
+
+environment:
+  python_version: "3.13"
+  timeout_seconds: 300
+  max_agent_steps: 30
+
+evaluation:
+  evaluation_type: tests
+  visible_tests_path: visible_tests
+  hidden_tests_path: hidden_tests
+  reference_solution_path: reference
+
+tags:
+  - software-engineering
+  - multi-file-debugging
+  - repository-understanding
+  - authentication
+  - session-management
+  - regression-testing
