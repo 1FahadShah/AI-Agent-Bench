@@ -1,6 +1,5 @@
 """Independent evaluation of benchmark task workspaces."""
 
-import os
 import re
 import sys
 from dataclasses import dataclass
@@ -95,12 +94,12 @@ class TestEvaluator:
             "--tb=short",
         ]
 
-        environment = os.environ.copy()
-        existing_pythonpath = environment.get("PYTHONPATH", "")
-        python_paths = [str(starter_directory)]
-        if existing_pythonpath:
-            python_paths.append(existing_pythonpath)
-        environment["PYTHONPATH"] = os.pathsep.join(python_paths)
+        # The runner filters this environment against its own allowlist.
+        # Do not inherit the host's PYTHONPATH or unrelated environment values.
+        environment = {
+            "PYTHONPATH": str(starter_directory),
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        }
 
         try:
             execution = runner.run(command=command, env=environment)

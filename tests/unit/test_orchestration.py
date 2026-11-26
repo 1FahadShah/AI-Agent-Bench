@@ -225,6 +225,7 @@ def create_orchestrator(
         results_directory=directories["results"],
         config=config,
         provider=provider,
+        allow_unsafe_local_execution=True,
     )
 
 

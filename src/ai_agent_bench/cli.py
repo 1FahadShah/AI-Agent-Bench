@@ -113,6 +113,11 @@ def run_benchmark(
         "--results-dir",
         help="Directory where benchmark results are stored.",
     ),
+    allow_unsafe_local_execution: bool = typer.Option(
+        False,
+        "--allow-unsafe-local-execution",
+        help="Explicitly permit execution without OS-level sandboxing. Unsafe.",
+    ),
 ) -> None:
     """Execute a benchmark task using the configured LLM agent."""
     typer.echo(f"Starting benchmark: {task_id}")
@@ -122,6 +127,13 @@ def run_benchmark(
 
         typer.echo(f"Provider: {config.provider}")
         typer.echo(f"Model: {config.model}")
+        if allow_unsafe_local_execution:
+            typer.echo(
+                "WARNING: UNSAFE LOCAL EXECUTION ENABLED. "
+                "Agent and evaluator code are not OS-isolated.",
+                err=True,
+            )
+
         typer.echo("Initializing benchmark orchestrator...")
 
         orchestrator = BenchmarkOrchestrator(
@@ -129,6 +141,7 @@ def run_benchmark(
             workspace_root=workspace_dir,
             results_directory=results_dir,
             config=config,
+            allow_unsafe_local_execution=allow_unsafe_local_execution,
         )
 
         result = orchestrator.run(task_id)

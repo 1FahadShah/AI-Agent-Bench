@@ -61,11 +61,13 @@ class BenchmarkOrchestrator:
         results_directory: Path,
         config: LLMConfig,
         provider: LLMProvider | None = None,
+        allow_unsafe_local_execution: bool = False,
     ) -> None:
         self.tasks_directory = tasks_directory.resolve()
         self.workspace_root = workspace_root.resolve()
         self.results_directory = results_directory.resolve()
         self.config = config
+        self.allow_unsafe_local_execution = allow_unsafe_local_execution
 
         self.loader = TaskLoader(self.tasks_directory)
         self.validator = TaskValidator(self.tasks_directory)
@@ -80,6 +82,14 @@ class BenchmarkOrchestrator:
 
     def run(self, task_id: str) -> BenchmarkRun:
         """Execute one benchmark task from loading through reporting."""
+        if not self.allow_unsafe_local_execution:
+            raise RuntimeError(
+                "Real-model execution is disabled by default because agent-generated "
+                "code and evaluator code are not OS-isolated. Use "
+                "--allow-unsafe-local-execution only if you explicitly accept "
+                "the risk. This option does not provide sandboxing."
+            )
+
         task = self.loader.load_task(task_id)
         self._validate_task(task)
 

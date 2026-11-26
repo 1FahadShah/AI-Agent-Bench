@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -108,3 +109,26 @@ def test_runner_rejects_invalid_output_limit(workspace: Path) -> None:
             workspace,
             max_output_chars=0,
         )
+
+
+def test_runner_filters_sensitive_environment_variables(workspace: Path) -> None:
+    runner = CommandRunner(workspace)
+    environment = dict(os.environ)
+    environment["OPENROUTER_API_KEY"] = "must-not-be-visible"
+    environment["BENCHMARK_TEST_SECRET"] = "must-not-be-visible"
+
+    result = runner.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import os; "
+                "print(os.getenv('OPENROUTER_API_KEY', 'MISSING')); "
+                "print(os.getenv('BENCHMARK_TEST_SECRET', 'MISSING'))"
+            ),
+        ],
+        env=environment,
+    )
+
+    assert result.exit_code == 0
+    assert result.stdout.splitlines() == ["MISSING", "MISSING"]

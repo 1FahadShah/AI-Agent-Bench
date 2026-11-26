@@ -1,5 +1,6 @@
 """Controlled command execution within benchmark workspaces."""
 
+import os
 import subprocess
 import time
 from dataclasses import dataclass
@@ -26,6 +27,26 @@ class CommandRunner:
         "pytest",
         "pytest.exe",
     }
+
+    SAFE_ENVIRONMENT_KEYS = {
+        "PATH",
+        "SYSTEMROOT",
+        "SYSTEMDRIVE",
+        "WINDIR",
+        "TEMP",
+        "TMP",
+        "PATHEXT",
+        "PYTHONPATH",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD",
+    }
+
+    @classmethod
+    def _build_environment(cls, env: dict[str, str] | None) -> dict[str, str]:
+        """Pass only explicitly permitted environment variables to child processes."""
+        source = os.environ if env is None else env
+        return {
+            key: value for key, value in source.items() if key.upper() in cls.SAFE_ENVIRONMENT_KEYS
+        }
 
     def __init__(
         self,
@@ -112,7 +133,7 @@ class CommandRunner:
                 timeout=self.timeout_seconds,
                 shell=False,
                 check=False,
-                env=env,
+                env=self._build_environment(env),
             )
 
             duration_seconds = time.perf_counter() - start_time
